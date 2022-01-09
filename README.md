@@ -12,3 +12,4 @@ For timelimit (in minutes) use the command line option `-t`.
 ```
 # python clavaro-tk.py "qwertyuiop[" "asdfghjkl;'" "zxcvbnm,./" -t 5
 ```
+![clavaro.png](clavaro.png?raw=true)
