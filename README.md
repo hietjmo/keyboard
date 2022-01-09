@@ -1,4 +1,4 @@
-# keyboard
+# Clavaro-tk
 
 You need the program `clavaro-tk.py` and the picture `clavaro.png`.
 Dependencies: Tkinter, PIL.
