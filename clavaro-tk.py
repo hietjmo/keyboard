@@ -1,11 +1,26 @@
 
-# python clavaro-tk.py "phrkfzwuybq" "slntvgaioec" "'xdmjåöä,.-"
+# python clavaro-tk.py "phrkfzwuybq" "slntvgaioec" "xdmjåöä,.-" # das-fi
+# python clavaro-tk.py "qwertyuiop[" "asdfghjkl;'" "zxcvbnm,./" # en-us
+# python clavaro-tk.py "qwertyuiopå" "asdfghjklöä" "zxcvbnm,.-" # fi
+# clavaro.png 951 x 351 pixels
 
+import argparse
 from tkinter import *
 from PIL import Image, ImageTk
 import random
 import time
 import sys
+
+
+def read_args ():
+  parser = argparse.ArgumentParser ()
+  parser.add_argument ('keyorder', nargs='*')
+  parser.add_argument ("--timelimit", "-t", type=int, default=0)
+  parser.add_argument ("--printresults", "-r", action="store_true")
+  args = parser.parse_args ()
+  return (args)
+
+args = read_args()
 
 positions1 = [
   "left-8","left-7","left-6","left-5","left-14",
@@ -16,12 +31,12 @@ positions1 = [
   "left-12","left-11","left-10","left-9",
   "right-16","right-15","right-9","right-10","right-11","right-12"]
 
-qwerty = "qwertyuiop[" "asdfghjkl;'" "zxcvbnm,./"
-# qwerty = "qwertyuiopå" "asdfghjklöä" "zxcvbnm,.-"
+# qwerty = "qwertyuiop[" "asdfghjkl;'" "zxcvbnm,./"
+qwerty = "qwertyuiopå" "asdfghjklöä" "zxcvbnm,.-"
 # qwerty = "phrkfzwuybq" "slntvgaioec" "xdmjåöä,.-"
 
-if len (sys.argv) > 1:
-  qwerty = "".join (sys.argv [1:])
+if args.keyorder:
+  qwerty = "".join (args.keyorder)
 print ("Key order:", qwerty)
 
 qw = dict (zip (positions1,qwerty))
@@ -96,6 +111,7 @@ def st (t):
 
 class Window (Frame):
   def __init__(self, root=None):
+    self.args = args
     self.results_left = {}
     self.results_right = {}
     self.read_results ()
@@ -137,6 +153,8 @@ class Window (Frame):
       text="Keep fingers on the base row.")
     self.avgs = [1000,1000,1000,1000,1000]
     self.gen = self.random_square ()
+    if self.args.timelimit > 0:
+      print ("Time limit",  self.args.timelimit, "minutes.")
   def read_results (self):
     rs = [
       (self.results_left,file_left),
@@ -155,13 +173,15 @@ class Window (Frame):
                rside [a] = [b]
       except:
         pass
-    print ("Old results:")
-    print ("Left:",self.results_left)
-    print ("Right:",self.results_right)
+    if args.printresults:
+      print ("Old results:")
+      print ("Left:",self.results_left)
+      print ("Right:",self.results_right)
   def on_closing (self,e=None):
-    print ("Results:")
-    print ("Left:",self.results_left)
-    print ("Right:",self.results_right)
+    if args.printresults:
+      print ("Results:")
+      print ("Left:",self.results_left)
+      print ("Right:",self.results_right)
     self.save_results ()
     self.root.destroy ()
   def save_results (self):
@@ -191,12 +211,20 @@ class Window (Frame):
     for r in [rid1,rid2]:
       self.canvas.itemconfig(r, state='normal')
     self.start = time.time ()
+    if self.args.timelimit > 0:
+      now = time.time ()
+      time1 = now - self.globaltime
+      if time1 // 60 >= self.args.timelimit:
+        print (f"Time limit reached ({self.args.timelimit} minutes). Quitting.")
+        self.on_closing ()
   def keydown (self,e):
     # print ('down', e, e.char, e.keysym, e.keycode)
     keyname = e.keysym
     if keyname in special:
       keyname = special [keyname]
     if not self.started:
+      self.globaltime = time.time ()
+
       self.canvas.itemconfig (self.tx1, state='hidden')
       self.canvas.itemconfig (self.tx2, state='hidden')
       print ("Started.")
