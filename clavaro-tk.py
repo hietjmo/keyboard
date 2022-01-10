@@ -17,6 +17,7 @@ def read_args ():
   parser.add_argument ('keyorder', nargs='*')
   parser.add_argument ("--timelimit", "-t", type=int, default=0)
   parser.add_argument ("--printresults", "-r", action="store_true")
+  parser.add_argument ("--eventinfo", "-e", action="store_true")
   args = parser.parse_args ()
   return (args)
 
@@ -45,10 +46,13 @@ special = {
   "adiaeresis": "ä",
   "odiaeresis": "ö",
   "aring": "å",
+  "bracketleft": "[",
   "apostrophe": "'",
+  "semicolon": ";",
   "comma": ",",
   "period": ".",
   "minus": "-",
+  "slash": "/",
 }
 
 left,right = "left","right"
@@ -218,7 +222,8 @@ class Window (Frame):
         print (f"Time limit reached ({self.args.timelimit} minutes). Quitting.")
         self.on_closing ()
   def keydown (self,e):
-    # print ('down', e, e.char, e.keysym, e.keycode)
+    if args.eventinfo:
+      print ('down', e, e.char, e.keysym, e.keycode)
     keyname = e.keysym
     if keyname in special:
       keyname = special [keyname]
